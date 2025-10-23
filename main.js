@@ -11,10 +11,13 @@
 
   // ===== State / Persistence =====
   const START_BAL = 1000;
-  const META_KEY = 'steakarena_meta2';
-  const BAL_KEY  = 'steakarena_balance2';
+  const META_KEY = 'steakarena_meta3';
+  const BAL_KEY  = 'steakarena_balance3';
 
-  const meta = JSON.parse(localStorage.getItem(META_KEY) || '{"sword":1,"armor":1,"luck":0,"rank":0}');
+  const meta = JSON.parse(localStorage.getItem(META_KEY) || '{"sword":1,"armor":1,"luck":0,"rank":0,"chill":0}');
+  // if user had an older save, ensure new field exists
+  if (typeof meta.chill === 'undefined') meta.chill = 0;
+
   let balance = Number(localStorage.getItem(BAL_KEY) || START_BAL);
 
   function saveMeta(){ localStorage.setItem(META_KEY, JSON.stringify(meta)); }
@@ -23,7 +26,7 @@
 
   function updateHUD(){
     $('balance').textContent = `Steaks: ${steaks(balance)}`;
-    $('gearBadge').textContent = `Knife ${meta.sword} • Apron ${meta.armor} • Sauce ${meta.luck}`;
+    $('gearBadge').textContent = `Knife ${meta.sword} • Apron ${meta.armor} • Sauce ${meta.luck} • Tongs ${meta.chill}`;
     $('rankBadge').textContent = `Rank ${meta.rank}`;
   }
 
@@ -68,7 +71,7 @@
   }
   function disableAll(on){ document.querySelectorAll('button, input').forEach(el=>{ if(el.id!=='restartBtn') el.disabled=on; }); }
   function fullRestart(){
-    meta.sword=1; meta.armor=1; meta.luck=0; meta.rank=0; saveMeta();
+    meta.sword=1; meta.armor=1; meta.luck=0; meta.rank=0; meta.chill=0; saveMeta();
     balance=START_BAL; localStorage.setItem(BAL_KEY, String(balance));
     resetBoard(); refreshShop(); updateHUD();
     stopCursor();
@@ -239,6 +242,8 @@
   function priceSword(){return 250*meta.sword;}
   function priceArmor(){return 200*meta.armor;}
   function priceLuck(){return 300;}
+  function priceChill(){return 300 + 200*meta.chill;} // 300,500,700...
+  const CHILL_MAX = 5;
 
   function refreshShop(){
     $('swordLvl').textContent=meta.sword;
@@ -251,15 +256,28 @@
     $('armorPrice').textContent=`Cost: ${priceArmor()} 🥩`;
     $('luckPrice').textContent = luckOwned ? 'Owned' : `Cost: ${priceLuck()} 🥩`;
 
+    // ❄️ Chill Tongs UI
+    $('chillLvl').textContent   = meta.chill;
+    $('chillPrice').textContent = meta.chill >= CHILL_MAX ? 'Maxed' : `Cost: ${priceChill()} 🥩`;
+    $('buyChill').disabled      = meta.chill >= CHILL_MAX;
+    $('buyChill').classList.toggle('disabled', meta.chill >= CHILL_MAX);
+
     const buyLuckBtn = $('buyLuck');
     buyLuckBtn.disabled = luckOwned;
     buyLuckBtn.classList.toggle('disabled', luckOwned);
     buyLuckBtn.textContent = luckOwned ? 'Owned' : 'Buy';
+
     updateHUD();
   }
   $('buySword').onclick=()=>{const c=priceSword();if(balance<c)return showPopup('Not enough steaks.','Shop');setBalance(balance-c);meta.sword++;saveMeta();refreshShop();};
   $('buyArmor').onclick=()=>{const c=priceArmor();if(balance<c)return showPopup('Not enough steaks.','Shop');setBalance(balance-c);meta.armor++;saveMeta();refreshShop();};
   $('buyLuck').onclick=()=>{ if(meta.luck>0) return showPopup('You already have Sauce of Fortune. Use it first, then rebuy.','Shop'); const c=priceLuck(); if(balance<c)return showPopup('Not enough steaks.','Shop'); setBalance(balance-c); meta.luck=1; saveMeta(); refreshShop(); };
+  $('buyChill').onclick=()=>{
+    if(meta.chill>=CHILL_MAX) return showPopup('Tongs are already as chill as ice!','Shop');
+    const c=priceChill(); if(balance<c) return showPopup('Not enough steaks.','Shop');
+    setBalance(balance-c); meta.chill++; saveMeta(); refreshShop();
+    showPopup(`Cursor slowed! Current Tongs level: ${meta.chill} / ${CHILL_MAX}`, '❄️ Chill Tongs');
+  };
 
   // ===== ARENA (Challenge Mode) =====
   const BOSS={name:'Giant Cow',baseHp:140,baseAtk:12,sprite:'🐄'};
@@ -284,11 +302,29 @@
     powerPct.textContent = `${pct}%`;
   }
 
+  // ❄️ Cursor speed calculator (uses Chill Tongs)
+  function getCursorStep() {
+    // Base speed by rank (gentle): start slow and ramp slightly with rank
+    const base = 1.2 + meta.rank * 0.18;
+
+    // Cow heats up a bit as turns pass
+    const heat = Math.min(0.8, fight.turn * 0.03);
+
+    // Tongs slow factor: each level reduces speed ~12% multiplicatively
+    const slowFactor = Math.pow(0.88, Math.min(meta.chill, 5));
+
+    // Final per-tick step
+    return Math.max(0.35, (base + heat) * slowFactor);
+  }
+
   function startCursor(){
-    cursor.style.left='0%';fight.cursorX=0;fight.cursorDir=1;stopCursor();
-    const base = 1.8 + meta.rank*0.35;
-    const step = base;
+    cursor.style.left='0%';
+    fight.cursorX=0;
+    fight.cursorDir=1;
+    stopCursor();
+
     fight.cursorLoop=setInterval(()=>{
+      const step = getCursorStep();
       fight.cursorX+=fight.cursorDir*step;
       if(fight.cursorX>=100){fight.cursorX=100;fight.cursorDir=-1;}
       if(fight.cursorX<=0){fight.cursorX=0;fight.cursorDir=1;}
@@ -368,32 +404,10 @@
   window.addEventListener('keydown', e=>{ if(e.code==='Space'){ e.preventDefault(); heroStrike(); } });
 
   // ===== Boot =====
-  function refreshShop(){
-    $('swordLvl').textContent=meta.sword;
-    $('armorLvl').textContent=meta.armor;
-
-    const luckOwned = meta.luck > 0;
-    $('luckLvl').textContent = luckOwned ? '1' : '0';
-
-    $('swordPrice').textContent=`Cost: ${250*meta.sword} 🥩`;
-    $('armorPrice').textContent=`Cost: ${200*meta.armor} 🥩`;
-    $('luckPrice').textContent = luckOwned ? 'Owned' : `Cost: 300 🥩`;
-
-    const buyLuckBtn = $('buyLuck');
-    buyLuckBtn.disabled = luckOwned;
-    buyLuckBtn.classList.toggle('disabled', luckOwned);
-    buyLuckBtn.textContent = luckOwned ? 'Owned' : 'Buy';
-    updateHUD();
-  }
-
-  $('buySword').onclick=()=>{const c=250*meta.sword;if(balance<c)return showPopup('Not enough steaks.','Shop');setBalance(balance-c);meta.sword++;saveMeta();refreshShop();};
-  $('buyArmor').onclick=()=>{const c=200*meta.armor;if(balance<c)return showPopup('Not enough steaks.','Shop');setBalance(balance-c);meta.armor++;saveMeta();refreshShop();};
-  $('buyLuck').onclick=()=>{ if(meta.luck>0) return showPopup('You already have Sauce of Fortune. Use it first, then rebuy.','Shop'); const c=300; if(balance<c)return showPopup('Not enough steaks.','Shop'); setBalance(balance-c); meta.luck=1; saveMeta(); refreshShop(); };
-
   function init(){
     updateHUD(); refreshShop(); renderGrid(); resetBoard(); updatePowerBar();
-    bombsOut.textContent=bombsRange.value;
-    updateMinesStats(); // ensure preview shows at load
+    $('bombsOut').textContent=$('bombs').value;
+    updateMinesStats();
   }
   init();
 })();
