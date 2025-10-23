@@ -3,36 +3,38 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>StakeArena</title>
+  <title>🥩 SteakArena</title>
 
   <!-- SEO / Social -->
-  <meta name="description" content="StakeArena — high-risk, high-reward web game. Bet in the mines, fight the Titan, and climb the ranks!" />
-  <meta property="og:title" content="StakeArena" />
-  <meta property="og:description" content="Test your luck and courage. Bet, survive, and fight your way to glory in StakeArena!" />
+  <meta name="description" content="SteakArena — high-risk, high-reward web game. Grill the mines, fight the Giant Cow, and rain steaks!" />
+  <meta property="og:title" content="SteakArena" />
+  <meta property="og:description" content="Bet, sizzle, and strike. Cook your way to glory in SteakArena!" />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="og-image.png" />
-  <meta name="theme-color" content="#0e1320" />
+  <meta name="theme-color" content="#1a0f12" />
+
+  <!-- Steak emoji favicon (no file needed) -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='50' font-size='48'%3E%F0%9F%A5%A9%3C/text%3E%3C/svg%3E" />
 
   <link rel="stylesheet" href="styles.css" />
   <script src="main.js" defer></script>
-  <link rel="icon" href="icon.png" />
 </head>
 <body>
   <div class="wrap">
     <header class="topbar">
-      <div class="brand">💥 StakeArena</div>
+      <div class="brand">🥩 SteakArena</div>
       <div class="bank">
-        <span id="balance" class="pill">Balance: 0</span>
-        <span class="badge" id="gearBadge">Sword 1 • Armor 1 • Luck 0</span>
+        <span id="balance" class="pill">Steaks: 0</span>
+        <span class="badge" id="gearBadge">Knife 1 • Apron 1 • Sauce 0</span>
         <span class="badge" id="rankBadge">Rank 0</span>
         <span class="badge" id="lastWin">Last +0</span>
       </div>
     </header>
 
     <nav class="nav">
-      <button class="tab active" data-tab="mines">Mines</button>
-      <button class="tab" data-tab="shop">Shop</button>
-      <button class="tab" data-tab="boss">Arena</button>
+      <button class="tab active" data-tab="mines">Grill Mines</button>
+      <button class="tab" data-tab="shop">Butcher Shop</button>
+      <button class="tab" data-tab="boss">Cow Arena</button>
       <button class="tab" data-tab="settings">Settings</button>
     </nav>
 
@@ -40,7 +42,7 @@
     <main id="mines" class="content show">
       <section class="panel controls">
         <div class="row">
-          <label class="lbl">Bet</label>
+          <label class="lbl">Bet 🥩</label>
           <div class="betbox">
             <button class="mini" id="betDec">-</button>
             <input id="betInput" type="number" min="1" step="10" value="50" />
@@ -62,8 +64,8 @@
         </div>
         <div class="stats">
           <div>Reveals: <span id="reveals">0</span> / 25 — <span id="safeLeft">0</span> safe left</div>
-          <div>Multiplier: <span id="mult">1.00×</span> • Potential: <span id="potential">0</span></div>
-          <div class="tiny">🍀 Luck = 1-time 🛡 shield per round. It’s only consumed when it blocks a bomb.</div>
+          <div>Multiplier: <span id="mult">1.00×</span> • Potential: <span id="potential">0</span> 🥩</div>
+          <div class="tiny">🍀 <b>Sauce of Fortune</b> = one-time 🛡 shield per round. It’s only consumed when it blocks a bomb.</div>
         </div>
       </section>
       <section class="panel board">
@@ -76,36 +78,36 @@
       <section class="panel shop">
         <div class="item">
           <div class="meta">
-            <strong>⚔️ Sword</strong>
+            <strong>🔪 Steak Knife</strong>
             <small>Boosts Arena damage.</small>
             <small>Level: <span id="swordLvl">1</span></small>
           </div>
           <div>
-            <span class="price" id="swordPrice">Cost: 250</span>
+            <span class="price" id="swordPrice">Cost: 250 🥩</span>
             <button id="buySword" class="cta">Buy</button>
           </div>
         </div>
 
         <div class="item">
           <div class="meta">
-            <strong>🛡 Armor</strong>
+            <strong>🦺 Grill Apron</strong>
             <small>Raises Arena max HP.</small>
             <small>Level: <span id="armorLvl">1</span></small>
           </div>
           <div>
-            <span class="price" id="armorPrice">Cost: 200</span>
+            <span class="price" id="armorPrice">Cost: 200 🥩</span>
             <button id="buyArmor" class="cta">Buy</button>
           </div>
         </div>
 
         <div class="item">
           <div class="meta">
-            <strong>🍀 Luck</strong>
+            <strong>🍀 Sauce of Fortune</strong>
             <small>1-use bomb shield in Mines. Only consumed when triggered.</small>
             <small>Owned: <span id="luckLvl">0</span></small>
           </div>
           <div>
-            <span class="price" id="luckPrice">Cost: 300</span>
+            <span class="price" id="luckPrice">Cost: 300 🥩</span>
             <button id="buyLuck" class="cta">Buy</button>
           </div>
         </div>
@@ -115,34 +117,34 @@
     <!-- ===== ARENA (Challenge) ===== -->
     <main id="boss" class="content">
       <section class="panel boss-wrap">
-        <h2>⚔️ Titan Challenge</h2>
-        <p>Win to earn coins + rank. Titan gets tougher and faster every rank.</p>
+        <h2>🐄 Giant Cow Arena</h2>
+        <p>Sear your courage! Win to earn steaks + rank. The Cow gets tougher and faster every rank.</p>
 
-        <!-- Titan Power Bar -->
+        <!-- Grill Heat Bar -->
         <div class="powerWrap">
-          <div class="powerLabel">Titan Power</div>
+          <div class="powerLabel">Grill Heat</div>
           <div class="powerBar"><div id="powerFill"></div></div>
           <div id="powerPct" class="powerPct">100%</div>
         </div>
 
         <div class="boss-row">
-          <button id="startFight" class="cta">Fight Titan</button>
+          <button id="startFight" class="cta">Fight the Cow</button>
           <span class="badge" id="bossInfo">—</span>
         </div>
 
         <div class="arena">
           <div class="side">
-            <div class="avatar hero" id="heroSprite">🧝‍♂️</div>
+            <div class="avatar hero" id="heroSprite">👨‍🍳</div>
             <div class="hp">
-              <div>Hero</div>
+              <div>Chef</div>
               <div class="hpbar"><div id="hpHero"></div></div>
             </div>
           </div>
 
           <div class="side">
-            <div class="avatar boss" id="bossSprite">🗿</div>
+            <div class="avatar boss" id="bossSprite">🐄</div>
             <div class="hp">
-              <div>Boss</div>
+              <div>Giant Cow</div>
               <div class="hpbar"><div id="hpBoss"></div></div>
             </div>
           </div>
@@ -151,13 +153,13 @@
         <div class="boss-row">
           <div class="timing">
             <div class="zone ok"></div>
-            <div class="cursor" id="cursor"></div>
+            <div class="cursor spatula" id="cursor"></div>
           </div>
-          <button id="btnStrike" class="cta" disabled>Strike (Space)</button>
+          <button id="btnStrike" class="cta" disabled>Flip! (Space)</button>
           <button id="btnFlee" class="ghost" disabled>Flee</button>
         </div>
 
-        <div class="tiny">Tip: Hit the green zone for a perfect strike. Boss enrages over time.</div>
+        <div class="tiny">Tip: Land the spatula in the green zone for a perfect flip. The Cow enrages over time.</div>
       </section>
     </main>
 
@@ -165,13 +167,13 @@
     <main id="settings" class="content">
       <section class="panel">
         <h2>Settings</h2>
-        <p>Restart the entire game (resets balance, gear, rank, and interface).</p>
+        <p>Restart the entire game (resets steaks, gear, rank, and interface).</p>
         <button id="restartAll" class="cta">Restart Game</button>
       </section>
     </main>
 
     <footer class="footer">
-      <small>StakeArena — Mines build your coins • Arena is high risk. Space = Strike.</small>
+      <small>SteakArena — Grill Mines fuel your steaks • Cow Arena is high risk. Space = Flip.</small>
     </footer>
   </div>
 
@@ -192,16 +194,19 @@
     </div>
   </div>
 
-  <!-- Game Over overlay -->
+  <!-- Game Over overlay (persists until Restart) -->
   <section id="gameOver" class="overlay">
     <div class="card">
       <h2>Game Over</h2>
-      <p>You lost to Titan or your balance hit 0.</p>
+      <p>Your steak got overcooked… or the Cow stomped you.</p>
       <p><b>Final Rank:</b> <span id="finalScore">Rank 0</span></p>
       <div class="row actions">
         <button id="restartBtn" class="cta">Restart</button>
       </div>
     </div>
   </section>
+
+  <!-- Steak rain container -->
+  <div id="steakRain" aria-hidden="true"></div>
 </body>
 </html>
